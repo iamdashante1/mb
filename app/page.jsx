@@ -48,8 +48,8 @@ const RSVP_DETAILS = [
     label: "Response Method",
     value: (
       <>
-        Call or text Danielle Bailey at (561) 555-1298 or email{" "}
-        <a href="mailto:danielle.bailey.family@gmail.com">danielle.bailey.family@gmail.com</a>.
+        Please send a text message with your name and headcount to (561) 727-5032. Text-only responses are preferred so the family
+        can keep an organized list.
       </>
     ),
   },
@@ -59,7 +59,7 @@ const RSVP_DETAILS = [
   },
   {
     label: "Dress Guidance",
-    value: "Traditional funeral attire or muted celebratory colors are appreciated.",
+    value: "Honoring colors are green, white, and gold; traditional funeral attire is welcome if that feels most comfortable.",
   },
   {
     label: "Donations or Flowers",
