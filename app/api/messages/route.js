@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getCollections } from "@/lib/collections";
 
 export async function GET() {
@@ -27,7 +27,7 @@ export async function POST(request) {
     const { messages } = await getCollections();
     const payload = { name, email, relationship, message, createdAt: new Date() };
     await messages.insertOne(payload);
-    return NextResponse.json({ message: "Submitted" }, { status: 201 });
+    return NextResponse.json(payload, { status: 201 });
   } catch (error) {
     console.error("Unable to save message", error);
     return NextResponse.json({ message: "Unable to save message." }, { status: 500 });

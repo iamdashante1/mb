@@ -68,26 +68,6 @@ export default function DashboardPage() {
               <h2>RSVPs</h2>
               <p className="muted">Attendance confirmations submitted through the memorial page.</p>
             </div>
-            <div className="card__actions">
-              <div className="search-bar">
-                <label htmlFor="rsvp-filter" className="search-bar__label">
-                  Search RSVPs
-                </label>
-                <div className="search-bar__field">
-                  <input
-                    type="search"
-                    id="rsvp-filter"
-                    placeholder="Search by name or email"
-                    value={filter}
-                    onChange={(event) => setFilter(event.target.value)}
-                    className="search-bar__input"
-                  />
-                </div>
-                <p className="search-bar__hint">
-                  Showing {filteredRsvps.length} entr{filteredRsvps.length === 1 ? "y" : "ies"}. Filter by guest name or email address.
-                </p>
-              </div>
-            </div>
           </div>
           <div className="record-list">
             {!filteredRsvps.length ? (
