@@ -12,8 +12,73 @@ const SERVICE_DETAILS = {
     "748 W Ninth St",
     "Riviera Beach, FL 33404",
   ],
-  reception: "Light brunch to follow at the Bailey residence.",
 };
+
+const RSVP_DETAILS = [
+  { label: "Name of the Deceased", value: "Michele Bailey" },
+  { label: "Type of Service", value: "Celebration of life worship service with tributes, praise, and thanksgiving." },
+  { label: "Date of Service", value: SERVICE_DETAILS.date },
+  { label: "Start Time", value: SERVICE_DETAILS.time },
+  {
+    label: "Venue Name & Address",
+    value: (
+      <>
+        {SERVICE_DETAILS.locationLines[0]}
+        <br />
+        {SERVICE_DETAILS.locationLines[1]}
+        <br />
+        {SERVICE_DETAILS.locationLines[2]}
+      </>
+    ),
+  },
+  {
+    label: "Burial Details",
+    value: "Family interment will follow immediately at Riviera Beach Memorial Park; guests who wish to attend may follow the caravan.",
+  },
+  {
+    label: "Reception / Repast",
+    value: "Light brunch at the Bailey residence (1240 W 34th St, West Palm Beach, FL 33407) beginning at 3:30 PM.",
+  },
+  {
+    label: "RSVP Purpose",
+    value: "Attendance confirmation only so seating, programs, and the repast headcount can be prepared.",
+  },
+  { label: "Response Deadline", value: "Please respond by Tuesday, December 23, 2025." },
+  {
+    label: "Response Method",
+    value: (
+      <>
+        Call or text Danielle Bailey at (561) 555-1298 or email{" "}
+        <a href="mailto:danielle.bailey.family@gmail.com">danielle.bailey.family@gmail.com</a>.
+      </>
+    ),
+  },
+  {
+    label: "Guest Guidance",
+    value: "Open attendance—family, friends, church members, and coworkers who loved Michele are welcome.",
+  },
+  {
+    label: "Dress Guidance",
+    value: "Traditional funeral attire or muted celebratory colors are appreciated.",
+  },
+  {
+    label: "Donations or Flowers",
+    value:
+      "Please consider planting a tree or donating to Michele’s favorite literacy nonprofits; modest floral tributes may be delivered to the church between 10:00 AM and noon.",
+  },
+  {
+    label: "Livestream Information",
+    value: (
+      <>
+        Livestream available at{" "}
+        <a href="https://watch.baileyfamily.com" target="_blank" rel="noreferrer">
+          watch.baileyfamily.com
+        </a>{" "}
+        with access code MICHELELOVE (stream opens at 12:45 PM).
+      </>
+    ),
+  },
+];
 
 function formatDate(value) {
   try {
@@ -208,6 +273,19 @@ export default function HomePage() {
           <div className="card__content">
             <h2>RSVP</h2>
             <p>Please let the Bailey family know if you plan to attend the service and include any details they should know.</p>
+            <div className="rsvp-guidance">
+              <h3>Service & RSVP Details</h3>
+              <dl className="rsvp-guidance__list">
+                {RSVP_DETAILS.map((detail) => (
+                  <div key={detail.label} className="rsvp-guidance__item">
+                    <dt>{detail.label}</dt>
+                    <dd>{detail.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+          <div className="card__content">
             <form id="rsvp-form" onSubmit={handleRsvpSubmit}>
               <div className="form-group">
                 <label htmlFor="name">Full Name</label>
@@ -236,10 +314,10 @@ export default function HomePage() {
               <button type="submit" className="button">
                 Submit RSVP
               </button>
+              {thankYouMessage ? (
+                <p className={`success-message${hasError ? " error" : ""}`}>{thankYouMessage}</p>
+              ) : null}
             </form>
-            {thankYouMessage ? (
-              <p className={`success-message${hasError ? " error" : ""}`}>{thankYouMessage}</p>
-            ) : null}
           </div>
         </section>
 
