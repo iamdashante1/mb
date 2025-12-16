@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -259,9 +259,6 @@ export default function HomePage() {
                   <br />
                 </span>
               ))}
-            </p>
-            <p>
-              <strong>Reception:</strong> {SERVICE_DETAILS.reception}
             </p>
           </div>
           <div className="service__image">

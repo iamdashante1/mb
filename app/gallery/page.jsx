@@ -25,16 +25,46 @@ const galleryItems = [
     objectFit: "contain",
   },
   {
-    src: "/assets/family-brunch.jpg",
-    title: "Family Brunch",
-    description: "A candid from the Bailey brunch table filled with laughter.",
-    category: "family",
-  },
-  {
     src: "/assets/garden-walk.jpg",
     title: "Garden Walk",
     description: "Evening walk through the garden Michele tended with care.",
     category: "quiet",
+  },
+  {
+    src: "/assets/WhatsApp Image 2025-12-16 at 13.46.50_2156d165.jpg",
+    title: "Fun Spot Laughter",
+    description: "Holiday smiles at Fun Spot in matching festive outfits.",
+    category: "celebration",
+  },
+  {
+    src: "/assets/WhatsApp Image 2025-12-16 at 13.46.50_6628f6c9.jpg",
+    title: "Palm Garden Pause",
+    description: "Soaking up sunshine beside the sparkling gift display.",
+    category: "quiet",
+  },
+  {
+    src: "/assets/WhatsApp Image 2025-12-16 at 13.46.50_6fb7c87d.jpg",
+    title: "Neighborhood Stroll",
+    description: "Sunday stroll through the neighborhood with a peaceful grin.",
+    category: "quiet",
+  },
+  {
+    src: "/assets/WhatsApp Image 2025-12-16 at 13.46.50_d2987e6e.jpg",
+    title: "Deckside Adventure",
+    description: "Cruise deck adventure taking in the sea breeze together.",
+    category: "family",
+  },
+  {
+    src: "/assets/WhatsApp Image 2025-12-16 at 13.47.01_3b37bbc8.jpg",
+    title: "Proud Embrace",
+    description: "Celebrating a military milestone with a tight embrace.",
+    category: "celebration",
+  },
+  {
+    src: "/assets/WhatsApp Image 2025-12-16 at 13.47.21_81b780aa.jpg",
+    title: "Tropical Catch-Up",
+    description: "Laughing with family during a tropical afternoon visit.",
+    category: "family",
   },
 ];
 
@@ -161,10 +191,6 @@ export default function GalleryPage() {
                     objectPosition: item.objectPosition ?? "center",
                   }}
                 />
-                <figcaption className="gallery-card__caption">
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </figcaption>
               </figure>
             </article>
           ))}
