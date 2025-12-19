@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SERVICE_DETAILS = {
   date: "Saturday, December 27, 2025",
@@ -117,8 +117,10 @@ export default function HomePage() {
   const [tributes, setTributes] = useState([]);
   const [rsvpForm, setRsvpForm] = useState({ name: "", email: "", relationship: "", message: "" });
   const [memoryForm, setMemoryForm] = useState({ name: "", message: "" });
+  const [tributeFiles, setTributeFiles] = useState([]);
   const [thankYouMessage, setThankYouMessage] = useState("");
   const [hasError, setHasError] = useState(false);
+  const tributeFileInputRef = useRef(null);
 
   useReveal([tributes.length]);
 
@@ -143,6 +145,26 @@ export default function HomePage() {
     const { name, value } = event.target;
     setRsvpForm((prev) => ({ ...prev, [name]: value }));
   };
+
+  const handleTributeFilesChange = (event) => {
+    const files = Array.from(event.target.files || []);
+    const withPreviews = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+      type: file.type || "",
+      name: file.name,
+    }));
+    setTributeFiles(withPreviews);
+  };
+
+  useEffect(
+    () => () => {
+      tributeFiles.forEach((item) => {
+        if (item.preview) URL.revokeObjectURL(item.preview);
+      });
+    },
+    [tributeFiles]
+  );
 
   const handleTributeChange = (event) => {
     const { name, value } = event.target;
@@ -176,19 +198,26 @@ export default function HomePage() {
 
   async function handleTributeSubmit(event) {
     event.preventDefault();
-    if (!memoryForm.name || !memoryForm.message) return;
+    const hasMedia = tributeFiles.length > 0;
+    if (!memoryForm.name || (!memoryForm.message && !hasMedia)) return;
 
     try {
+      const formData = new FormData();
+      formData.append("name", memoryForm.name);
+      formData.append("message", memoryForm.message);
+      tributeFiles.forEach((item) => formData.append("attachments", item.file));
+
       const response = await fetch("/api/tributes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(memoryForm),
+        body: formData,
       });
 
       if (!response.ok) throw new Error("Unable to save tribute");
       const createdTribute = await response.json();
       setTributes((prev) => [createdTribute, ...prev]);
       setMemoryForm({ name: "", message: "" });
+      setTributeFiles([]);
+      if (tributeFileInputRef.current) tributeFileInputRef.current.value = "";
     } catch {
       alert("We are unable to save your memory at the moment. Please try again later.");
     }
@@ -330,8 +359,42 @@ export default function HomePage() {
                   rows={3}
                   value={memoryForm.message}
                   onChange={handleTributeChange}
-                  required
                 />
+              </div>
+              <div className="form-group form-group--file">
+                <label htmlFor="tribute-attachments">Photos or videos (optional)</label>
+                <div className="file-upload">
+                  <input
+                    type="file"
+                    id="tribute-attachments"
+                    name="attachments"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={handleTributeFilesChange}
+                    ref={tributeFileInputRef}
+                    className="file-upload__input"
+                  />
+                  <button type="button" className="button file-upload__button" onClick={() => tributeFileInputRef.current?.click()}>
+                    Choose files
+                  </button>
+                  <span className="file-upload__info">
+                    {tributeFiles.length ? `${tributeFiles.length} selected` : "JPG/PNG/MP4, up to 15MB each."}
+                  </span>
+                </div>
+                {tributeFiles.length ? (
+                  <div className="attachment-previews">
+                    {tributeFiles.map((item, index) => (
+                      <div className="attachment-previews__item" key={`${item.preview}-${index}`}>
+                        {item.type.startsWith("video/") ? (
+                          <video src={item.preview} controls preload="metadata" />
+                        ) : (
+                          <img src={item.preview} alt={item.name} />
+                        )}
+                        <p className="muted attachment-previews__caption">{item.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
               <button type="submit" className="button button--secondary">
                 Add Memory
@@ -344,7 +407,26 @@ export default function HomePage() {
                 <article className="tribute" key={`${tribute.name}-${index}`}>
                   <h3>{tribute.name || "Anonymous"}</h3>
                   <p className="tribute__date">{tribute.createdAt ? formatDate(tribute.createdAt) : ""}</p>
-                  <p className="tribute__message">{tribute.message}</p>
+                  {tribute.message ? <p className="tribute__message">{tribute.message}</p> : null}
+                  {tribute.attachments?.length ? (
+                    <div className="record__attachments">
+                      <p className="muted">Shared media:</p>
+                      <div className="record__attachment-list">
+                        {tribute.attachments.map((file, fileIndex) => (
+                          <div className="record__attachment" key={`${file.url}-${fileIndex}`}>
+                            {file.type?.startsWith("image/") ? (
+                              <img src={file.url} alt={file.name || `Attachment ${fileIndex + 1}`} />
+                            ) : file.type?.startsWith("video/") ? (
+                              <video src={file.url} controls preload="metadata" />
+                            ) : null}
+                            <a href={file.url} target="_blank" rel="noreferrer" className="record__attachment-link">
+                              {file.name || `File ${fileIndex + 1}`}
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </article>
               ))
             ) : (
