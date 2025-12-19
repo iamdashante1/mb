@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getCollections } from "@/lib/collections";
 import { sendNotification } from "@/lib/notify";
+import fs from "fs/promises";
+import path from "path";
+import crypto from "crypto";
 
 export async function GET() {
   try {
@@ -13,20 +16,73 @@ export async function GET() {
   }
 }
 
+const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
+const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB per file
+const ALLOWED_TYPES = ["image/", "video/"];
+
+async function saveFiles(files) {
+  if (!files?.length) return [];
+  await fs.mkdir(UPLOAD_DIR, { recursive: true });
+
+  const saved = [];
+  for (const file of files) {
+    const type = file.type || "";
+    const isAllowed = ALLOWED_TYPES.some((prefix) => type.startsWith(prefix));
+    if (!isAllowed) continue;
+
+    const arrayBuffer = await file.arrayBuffer();
+    if (arrayBuffer.byteLength > MAX_FILE_SIZE) continue;
+
+    const buffer = Buffer.from(arrayBuffer);
+    const ext = path.extname(file.name) || "";
+    const safeName = `${Date.now()}-${crypto.randomBytes(6).toString("hex")}${ext}`;
+    const targetPath = path.join(UPLOAD_DIR, safeName);
+    await fs.writeFile(targetPath, buffer);
+    saved.push({
+      url: `/uploads/${safeName}`,
+      type,
+      name: file.name || safeName,
+      size: buffer.length,
+    });
+  }
+  return saved;
+}
+
+async function parseJson(request) {
+  const body = await request.json();
+  const name = (body.name || "").trim();
+  const email = (body.email || "").trim();
+  const relationship = (body.relationship || "").trim();
+  const message = (body.message || "").trim();
+  return { name, email, relationship, message, attachments: [] };
+}
+
+async function parseMultipart(request) {
+  const formData = await request.formData();
+  const files = formData.getAll("attachments").filter((file) => typeof file === "object" && "arrayBuffer" in file);
+  const attachments = await saveFiles(files);
+  const name = (formData.get("name") || "").toString().trim();
+  const email = (formData.get("email") || "").toString().trim();
+  const relationship = (formData.get("relationship") || "").toString().trim();
+  const message = (formData.get("message") || "").toString().trim();
+  return { name, email, relationship, message, attachments };
+}
+
 export async function POST(request) {
   try {
-    const body = await request.json();
-    const name = (body.name || "").trim();
-    const email = (body.email || "").trim();
-    const relationship = (body.relationship || "").trim();
-    const message = (body.message || "").trim();
+    const contentType = request.headers.get("content-type") || "";
+    const isMultipart = contentType.includes("multipart/form-data");
+    const { name, email, relationship, message, attachments } = isMultipart
+      ? await parseMultipart(request)
+      : await parseJson(request);
 
-    if (!name || !email || !relationship) {
-      return NextResponse.json({ message: "Name, email, and relationship are required." }, { status: 400 });
+    const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
+    if (!name || (!hasAttachments && (!email || !relationship))) {
+      return NextResponse.json({ message: "Name is required; email and relationship are needed unless files are attached." }, { status: 400 });
     }
 
     const { messages } = await getCollections();
-    const payload = { name, email, relationship, message, createdAt: new Date() };
+    const payload = { name, email, relationship, message, attachments, createdAt: new Date() };
     await messages.insertOne(payload);
     await sendNotification({
       subject: `New RSVP from ${name}`,
@@ -35,6 +91,7 @@ export async function POST(request) {
         Email: email,
         Relationship: relationship,
         Message: message || "(no additional details)",
+        Attachments: attachments?.length ? attachments.map((file) => file.name).join(", ") : "None",
       },
     });
     return NextResponse.json(payload, { status: 201 });

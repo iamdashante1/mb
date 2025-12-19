@@ -82,6 +82,25 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   {entry.message ? <p className="record__body">{entry.message}</p> : null}
+                  {entry.attachments?.length ? (
+                    <div className="record__attachments">
+                      <p className="muted">Attachments:</p>
+                      <div className="record__attachment-list">
+                        {entry.attachments.map((file, index) => (
+                          <div className="record__attachment" key={`${file.url}-${index}`}>
+                            {file.type?.startsWith("image/") ? (
+                              <img src={file.url} alt={file.name || `Attachment ${index + 1}`} />
+                            ) : file.type?.startsWith("video/") ? (
+                              <video src={file.url} controls preload="metadata" />
+                            ) : null}
+                            <a href={file.url} target="_blank" rel="noreferrer" className="record__attachment-link">
+                              {file.name || `File ${index + 1}`}
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </article>
               ))
             )}

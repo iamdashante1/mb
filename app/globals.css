@@ -207,6 +207,10 @@ main {
   margin-bottom: 1rem;
 }
 
+.form-group--file {
+  margin-bottom: 1.5rem;
+}
+
 .form-group label {
   display: block;
   margin-bottom: 0.35rem;
@@ -214,11 +218,62 @@ main {
 }
 
 .form-group input,
-.form-group textarea {
-  width: 100%;
+  .form-group textarea {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    padding: 0.75rem 1rem;
+  }
+
+.file-upload {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.file-upload__input {
+  display: none;
+}
+
+.file-upload__button {
+  width: auto;
+  padding-inline: 1.5rem;
+}
+
+.file-upload__info {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.attachment-previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.attachment-previews__item {
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  padding: 0.75rem 1rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.attachment-previews__item img,
+.attachment-previews__item video {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+}
+
+.attachment-previews__caption {
+  margin: 0;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .rsvp-guidance {
@@ -532,6 +587,48 @@ footer {
 
 .record__body {
   margin-top: 0.75rem;
+}
+
+.record__attachments {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.record__attachment-list {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.record__attachment {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  background: #fff;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.record__attachment img,
+.record__attachment video {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  background: #f7f7f7;
+}
+
+.record__attachment-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.record__attachment-link:hover {
+  text-decoration: underline;
 }
 
 .search-bar {

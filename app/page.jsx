@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SERVICE_DETAILS = {
   date: "Saturday, December 27, 2025",
@@ -116,9 +116,11 @@ function useReveal(deps = []) {
 export default function HomePage() {
   const [tributes, setTributes] = useState([]);
   const [rsvpForm, setRsvpForm] = useState({ name: "", email: "", relationship: "", message: "" });
+  const [rsvpFiles, setRsvpFiles] = useState([]);
   const [memoryForm, setMemoryForm] = useState({ name: "", message: "" });
   const [thankYouMessage, setThankYouMessage] = useState("");
   const [hasError, setHasError] = useState(false);
+  const fileInputRef = useRef(null);
 
   useReveal([tributes.length]);
 
@@ -144,6 +146,26 @@ export default function HomePage() {
     setRsvpForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleRsvpFilesChange = (event) => {
+    const files = Array.from(event.target.files || []);
+    const withPreviews = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+      type: file.type || "",
+      name: file.name,
+    }));
+    setRsvpFiles(withPreviews);
+  };
+
+  useEffect(
+    () => () => {
+      rsvpFiles.forEach((item) => {
+        if (item.preview) URL.revokeObjectURL(item.preview);
+      });
+    },
+    [rsvpFiles]
+  );
+
   const handleTributeChange = (event) => {
     const { name, value } = event.target;
     setMemoryForm((prev) => ({ ...prev, [name]: value }));
@@ -151,23 +173,37 @@ export default function HomePage() {
 
   async function handleRsvpSubmit(event) {
     event.preventDefault();
-    if (!rsvpForm.name || !rsvpForm.email || !rsvpForm.relationship) {
+    const hasMedia = rsvpFiles.length > 0;
+    const hasContact = rsvpForm.email && rsvpForm.relationship;
+    if (!rsvpForm.name || (!hasMedia && !hasContact)) {
       setHasError(true);
-      setThankYouMessage("Please share your name, email, and relationship before submitting your RSVP.");
+      setThankYouMessage(
+        hasMedia
+          ? "Please add your name so we know who shared these files."
+          : "Please share your name, email, and relationship before submitting your RSVP."
+      );
       return;
     }
 
     try {
+      const formData = new FormData();
+      formData.append("name", rsvpForm.name);
+      formData.append("email", rsvpForm.email);
+      formData.append("relationship", rsvpForm.relationship);
+      formData.append("message", rsvpForm.message);
+      rsvpFiles.forEach((item) => formData.append("attachments", item.file));
+
       const response = await fetch("/api/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(rsvpForm),
+        body: formData,
       });
 
       if (!response.ok) throw new Error("Network error");
       setHasError(false);
       setThankYouMessage(`Thank you, ${rsvpForm.name}. Your RSVP has been shared with the family.`);
       setRsvpForm({ name: "", email: "", relationship: "", message: "" });
+      setRsvpFiles([]);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch {
       setHasError(true);
       setThankYouMessage("We were unable to save your RSVP. Please try again shortly.");
@@ -285,7 +321,7 @@ export default function HomePage() {
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email Address</label>
-                <input type="email" id="email" name="email" value={rsvpForm.email} onChange={handleRsvpChange} required />
+                <input type="email" id="email" name="email" value={rsvpForm.email} onChange={handleRsvpChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="relationship">Relationship to Michele</label>
@@ -296,12 +332,47 @@ export default function HomePage() {
                   placeholder="Friend, cousin, coworker..."
                   value={rsvpForm.relationship}
                   onChange={handleRsvpChange}
-                  required
                 />
               </div>
               <div className="form-group">
                 <label htmlFor="message">Additional Details (optional)</label>
                 <textarea id="message" name="message" rows={4} value={rsvpForm.message} onChange={handleRsvpChange} />
+              </div>
+              <div className="form-group form-group--file">
+                <label htmlFor="attachments">Photos or videos (optional)</label>
+                <div className="file-upload">
+                  <input
+                    type="file"
+                    id="attachments"
+                    name="attachments"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={handleRsvpFilesChange}
+                    ref={fileInputRef}
+                    className="file-upload__input"
+                  />
+                  <button type="button" className="button file-upload__button" onClick={() => fileInputRef.current?.click()}>
+                    Choose files
+                  </button>
+                  <span className="file-upload__info">
+                    {rsvpFiles.length ? `${rsvpFiles.length} selected` : "JPG/PNG/MP4, up to 15MB each."}
+                  </span>
+                </div>
+                <p className="muted">You can add photos or short clips to share along with your RSVP.</p>
+                {rsvpFiles.length ? (
+                  <div className="attachment-previews">
+                    {rsvpFiles.map((item, index) => (
+                      <div className="attachment-previews__item" key={`${item.preview}-${index}`}>
+                        {item.type.startsWith("video/") ? (
+                          <video src={item.preview} controls preload="metadata" />
+                        ) : (
+                          <img src={item.preview} alt={item.name} />
+                        )}
+                        <p className="muted attachment-previews__caption">{item.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
               <button type="submit" className="button">
                 Submit RSVP
