@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCollections } from "@/lib/collections";
+import { sendNotification } from "@/lib/notify";
 
 export async function GET() {
   try {
@@ -25,6 +26,13 @@ export async function POST(request) {
     const { tributes } = await getCollections();
     const entry = { name, message, createdAt: new Date() };
     const result = await tributes.insertOne(entry);
+    await sendNotification({
+      subject: `New tribute from ${name}`,
+      data: {
+        Name: name,
+        Message: message,
+      },
+    });
     return NextResponse.json({ ...entry, _id: result.insertedId }, { status: 201 });
   } catch (error) {
     console.error("Unable to save tribute", error);

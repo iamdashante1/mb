@@ -37,7 +37,7 @@ const RSVP_DETAILS = [
   },
   {
     label: "Reception / Repast",
-    value: "Light brunch at 1710 E Tiffany Dr, Mangonia Park, FL 33407 (United States) beginning at 3:30 PM.",
+    value: "Light brunch at 1710 E Tiffany Dr, Mangonia Park, FL 33407",
   },
   {
     label: "RSVP Purpose",
@@ -60,11 +60,6 @@ const RSVP_DETAILS = [
   {
     label: "Dress Guidance",
     value: "Honoring colors are green, white, and gold; traditional funeral attire is welcome if that feels most comfortable.",
-  },
-  {
-    label: "Donations or Flowers",
-    value:
-      "Please consider planting a tree or donating to Michele’s favorite literacy nonprofits; modest floral tributes may be delivered to the church between 10:00 AM and noon.",
   },
   {
     label: "Livestream Information",

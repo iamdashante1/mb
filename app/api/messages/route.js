@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCollections } from "@/lib/collections";
+import { sendNotification } from "@/lib/notify";
 
 export async function GET() {
   try {
@@ -27,6 +28,15 @@ export async function POST(request) {
     const { messages } = await getCollections();
     const payload = { name, email, relationship, message, createdAt: new Date() };
     await messages.insertOne(payload);
+    await sendNotification({
+      subject: `New RSVP from ${name}`,
+      data: {
+        Name: name,
+        Email: email,
+        Relationship: relationship,
+        Message: message || "(no additional details)",
+      },
+    });
     return NextResponse.json(payload, { status: 201 });
   } catch (error) {
     console.error("Unable to save message", error);
