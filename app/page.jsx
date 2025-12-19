@@ -116,7 +116,6 @@ function useReveal(deps = []) {
 export default function HomePage() {
   const [tributes, setTributes] = useState([]);
   const [rsvpForm, setRsvpForm] = useState({ name: "", email: "", relationship: "", message: "" });
-  const [rsvpFiles, setRsvpFiles] = useState([]);
   const [memoryForm, setMemoryForm] = useState({ name: "", message: "" });
   const [tributeFiles, setTributeFiles] = useState([]);
   const [thankYouMessage, setThankYouMessage] = useState("");
@@ -174,37 +173,23 @@ export default function HomePage() {
 
   async function handleRsvpSubmit(event) {
     event.preventDefault();
-    const hasMedia = rsvpFiles.length > 0;
-    const hasContact = rsvpForm.email && rsvpForm.relationship;
-    if (!rsvpForm.name || (!hasMedia && !hasContact)) {
+    if (!rsvpForm.name || !rsvpForm.email || !rsvpForm.relationship) {
       setHasError(true);
-      setThankYouMessage(
-        hasMedia
-          ? "Please add your name so we know who shared these files."
-          : "Please share your name, email, and relationship before submitting your RSVP."
-      );
+      setThankYouMessage("Please share your name, email, and relationship before submitting your RSVP.");
       return;
     }
 
     try {
-      const formData = new FormData();
-      formData.append("name", rsvpForm.name);
-      formData.append("email", rsvpForm.email);
-      formData.append("relationship", rsvpForm.relationship);
-      formData.append("message", rsvpForm.message);
-      rsvpFiles.forEach((item) => formData.append("attachments", item.file));
-
       const response = await fetch("/api/messages", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(rsvpForm),
       });
 
       if (!response.ok) throw new Error("Network error");
       setHasError(false);
       setThankYouMessage(`Thank you, ${rsvpForm.name}. Your RSVP has been shared with the family.`);
       setRsvpForm({ name: "", email: "", relationship: "", message: "" });
-      setRsvpFiles([]);
-      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch {
       setHasError(true);
       setThankYouMessage("We were unable to save your RSVP. Please try again shortly.");
@@ -345,42 +330,6 @@ export default function HomePage() {
               <div className="form-group">
                 <label htmlFor="message">Additional Details (optional)</label>
                 <textarea id="message" name="message" rows={4} value={rsvpForm.message} onChange={handleRsvpChange} />
-              </div>
-              <div className="form-group form-group--file">
-                <label htmlFor="attachments">Photos or videos (optional)</label>
-                <div className="file-upload">
-                  <input
-                    type="file"
-                    id="attachments"
-                    name="attachments"
-                    accept="image/*,video/*"
-                    multiple
-                    onChange={handleRsvpFilesChange}
-                    ref={fileInputRef}
-                    className="file-upload__input"
-                  />
-                  <button type="button" className="button file-upload__button" onClick={() => fileInputRef.current?.click()}>
-                    Choose files
-                  </button>
-                  <span className="file-upload__info">
-                    {rsvpFiles.length ? `${rsvpFiles.length} selected` : "JPG/PNG/MP4, up to 15MB each."}
-                  </span>
-                </div>
-                <p className="muted">You can add photos or short clips to share along with your RSVP.</p>
-                {rsvpFiles.length ? (
-                  <div className="attachment-previews">
-                    {rsvpFiles.map((item, index) => (
-                      <div className="attachment-previews__item" key={`${item.preview}-${index}`}>
-                        {item.type.startsWith("video/") ? (
-                          <video src={item.preview} controls preload="metadata" />
-                        ) : (
-                          <img src={item.preview} alt={item.name} />
-                        )}
-                        <p className="muted attachment-previews__caption">{item.name}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
               </div>
               <button type="submit" className="button">
                 Submit RSVP
