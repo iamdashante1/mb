@@ -4,70 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const galleryItems = [
-  {
-    src: "/assets/hero.jpg",
-    title: "Sunlit Florals",
-    description: "Flowers from the celebration of life service that Michele adored.",
-    category: "celebration",
-  },
-  {
-    src: "/assets/biography.jpg",
-    title: "Journaling Moments",
-    description: "Michele journaling gratitude notes on Sunday mornings.",
-    category: "quiet",
-  },
-  {
-    src: "/assets/service.jpg",
-    title: "Sanctuary Light",
-    description: "Soft morning light streaming into the sanctuary before guests arrived.",
-    category: "celebration",
-    objectFit: "contain",
-  },
-  {
-    src: "/assets/garden-walk.jpg",
-    title: "Garden Walk",
-    description: "Evening walk through the garden Michele tended with care.",
-    category: "quiet",
-  },
-  {
-    src: "/assets/WhatsApp Image 2025-12-16 at 13.46.50_2156d165.jpg",
-    title: "Fun Spot Laughter",
-    description: "Holiday smiles at Fun Spot in matching festive outfits.",
-    category: "celebration",
-  },
-  {
-    src: "/assets/WhatsApp Image 2025-12-16 at 13.46.50_6628f6c9.jpg",
-    title: "Palm Garden Pause",
-    description: "Soaking up sunshine beside the sparkling gift display.",
-    category: "quiet",
-  },
-  {
-    src: "/assets/WhatsApp Image 2025-12-16 at 13.46.50_6fb7c87d.jpg",
-    title: "Neighborhood Stroll",
-    description: "Sunday stroll through the neighborhood with a peaceful grin.",
-    category: "quiet",
-  },
-  {
-    src: "/assets/WhatsApp Image 2025-12-16 at 13.46.50_d2987e6e.jpg",
-    title: "Deckside Adventure",
-    description: "Cruise deck adventure taking in the sea breeze together.",
-    category: "family",
-  },
-  {
-    src: "/assets/WhatsApp Image 2025-12-16 at 13.47.01_3b37bbc8.jpg",
-    title: "Proud Embrace",
-    description: "Celebrating a military milestone with a tight embrace.",
-    category: "celebration",
-  },
-  {
-    src: "/assets/WhatsApp Image 2025-12-16 at 13.47.21_81b780aa.jpg",
-    title: "Tropical Catch-Up",
-    description: "Laughing with family during a tropical afternoon visit.",
-    category: "family",
-  },
-];
-
 function useReveal(deps = []) {
   useEffect(() => {
     const revealElements = document.querySelectorAll(".reveal");
@@ -97,16 +33,40 @@ function useReveal(deps = []) {
 
 export default function GalleryPage() {
   const [filter, setFilter] = useState("all");
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [status, setStatus] = useState("Loading photos...");
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
-  useReveal([filter]);
+  useReveal([filter, galleryItems.length]);
+
+  useEffect(() => {
+    async function loadGallery() {
+      try {
+        setStatus("Loading photos...");
+        const response = await fetch("/api/gallery", { cache: "no-store" });
+        if (!response.ok) throw new Error("Unable to load gallery");
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          setGalleryItems(data);
+        } else {
+          setGalleryItems([]);
+        }
+        setStatus("");
+      } catch {
+        setStatus("Unable to load gallery right now. Please try again.");
+        setGalleryItems([]);
+      }
+    }
+
+    loadGallery();
+  }, []);
 
   const filteredItems = filter === "all" ? galleryItems : galleryItems.filter((item) => item.category === filter);
   const currentItem = typeof lightboxIndex === "number" ? galleryItems[lightboxIndex] : null;
 
   const closeLightbox = () => setLightboxIndex(null);
   const showNext = (offset) => {
-    if (typeof lightboxIndex !== "number") return;
+    if (typeof lightboxIndex !== "number" || !galleryItems.length) return;
     const nextIndex = (lightboxIndex + offset + galleryItems.length) % galleryItems.length;
     setLightboxIndex(nextIndex);
   };
@@ -173,11 +133,15 @@ export default function GalleryPage() {
         </section>
 
         <section id="gallery" className="gallery-grid">
+          {status ? <p className="gallery__status">{status}</p> : null}
+          {!status && !filteredItems.length ? (
+            <p className="gallery__status">Add photos to public/assets to see them here automatically.</p>
+          ) : null}
           {filteredItems.map((item, index) => (
             <article
               className="gallery-card reveal"
               key={`${item.title}-${index}`}
-              onClick={() => setLightboxIndex(galleryItems.indexOf(item))}
+              onClick={() => setLightboxIndex(galleryItems.findIndex((entry) => entry.src === item.src))}
             >
               <figure className="gallery-card__figure">
                 <Image

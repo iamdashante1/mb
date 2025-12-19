@@ -37,7 +37,7 @@ const RSVP_DETAILS = [
   },
   {
     label: "Reception / Repast",
-    value: "Light brunch at the Bailey residence (1240 W 34th St, West Palm Beach, FL 33407) beginning at 3:30 PM.",
+    value: "Light brunch at 1710 E Tiffany Dr, Mangonia Park, FL 33407 (United States) beginning at 3:30 PM.",
   },
   {
     label: "RSVP Purpose",
