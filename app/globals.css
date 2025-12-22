@@ -309,6 +309,7 @@ main {
   object-fit: contain;
   display: block;
   background: #000;
+  cursor: zoom-in;
 }
 
 .attachment-previews__caption {
@@ -634,6 +635,20 @@ footer {
   margin-bottom: 1rem;
 }
 
+.lightbox__content video {
+  width: 100%;
+  height: auto;
+  max-height: 75vh;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  background: #000;
+}
+
+.lightbox__caption {
+  margin: 0.25rem 0 0;
+  color: #fff;
+}
+
 .lightbox__close,
 .lightbox__nav {
   position: absolute;
@@ -770,6 +785,7 @@ footer {
   object-fit: contain;
   border-radius: 0.5rem;
   background: #000;
+  cursor: zoom-in;
 }
 
 .record__attachment-link {

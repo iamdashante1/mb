@@ -120,6 +120,7 @@ export default function HomePage() {
   const [tributeFiles, setTributeFiles] = useState([]);
   const [thankYouMessage, setThankYouMessage] = useState("");
   const [hasError, setHasError] = useState(false);
+  const [lightboxItem, setLightboxItem] = useState(null);
   const tributeFileInputRef = useRef(null);
 
   useReveal([tributes.length]);
@@ -170,6 +171,22 @@ export default function HomePage() {
     const { name, value } = event.target;
     setMemoryForm((prev) => ({ ...prev, [name]: value }));
   };
+
+  useEffect(() => {
+    if (!lightboxItem) return;
+    const handleKey = (event) => {
+      if (event.key === "Escape") setLightboxItem(null);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [lightboxItem]);
+
+  const openLightbox = (item) => {
+    if (!item) return;
+    setLightboxItem(item);
+  };
+
+  const closeLightbox = () => setLightboxItem(null);
 
   async function handleRsvpSubmit(event) {
     event.preventDefault();
@@ -228,7 +245,7 @@ export default function HomePage() {
       <header className="hero">
         <div className="hero__content reveal">
           <p className="hero__eyebrow">Forever Loved</p>
-          <h1>Michele Bailey</h1>
+          <h1>Michele "Rosey" Bailey</h1>
           <p className="hero__dates">June 19, 1972 – December 12, 2025</p>
           <p className="hero__quote">“She had a heart that made everyone feel at home.”</p>
           <div className="hero__actions">
@@ -407,19 +424,19 @@ export default function HomePage() {
                         {tributeFiles.length ? `${tributeFiles.length} selected` : "No media selected yet."}
                       </span>
                     </div>
-                    {tributeFiles.length ? (
-                      <div className="attachment-previews">
-                        {tributeFiles.map((item, index) => (
-                          <div className="attachment-previews__item" key={`${item.preview}-${index}`}>
-                            {item.type.startsWith("video/") ? (
-                              <video src={item.preview} controls preload="metadata" />
-                            ) : (
-                              <img src={item.preview} alt={item.name} />
-                            )}
-                          </div>
-                        ))}
+                {tributeFiles.length ? (
+                  <div className="attachment-previews">
+                    {tributeFiles.map((item, index) => (
+                      <div className="attachment-previews__item" key={`${item.preview}-${index}`}>
+                        {item.type.startsWith("video/") ? (
+                          <video src={item.preview} controls preload="metadata" onClick={() => openLightbox(item)} />
+                        ) : (
+                          <img src={item.preview} alt={item.name} onClick={() => openLightbox(item)} />
+                        )}
                       </div>
-                    ) : null}
+                    ))}
+                  </div>
+                ) : null}
                   </div>
                 </div>
 
@@ -450,9 +467,18 @@ export default function HomePage() {
                             {tribute.attachments.map((file, fileIndex) => (
                               <div className="record__attachment" key={`${file.url}-${fileIndex}`}>
                                 {file.type?.startsWith("image/") ? (
-                                  <img src={file.url} alt={file.name || `Attachment ${fileIndex + 1}`} />
+                                  <img
+                                    src={file.url}
+                                    alt={file.name || `Attachment ${fileIndex + 1}`}
+                                    onClick={() => openLightbox({ url: file.url, type: file.type, name: file.name })}
+                                  />
                                 ) : file.type?.startsWith("video/") ? (
-                                  <video src={file.url} controls preload="metadata" />
+                                  <video
+                                    src={file.url}
+                                    controls
+                                    preload="metadata"
+                                    onClick={() => openLightbox({ url: file.url, type: file.type, name: file.name })}
+                                  />
                                 ) : null}
                               </div>
                             ))}
@@ -479,6 +505,20 @@ export default function HomePage() {
           </Link>
         </p>
       </footer>
+
+      <div className={`lightbox${lightboxItem ? " lightbox--visible" : ""}`} onClick={closeLightbox}>
+        <div className="lightbox__content" onClick={(event) => event.stopPropagation()}>
+          <button className="lightbox__close" aria-label="Close" onClick={closeLightbox}>
+            &times;
+          </button>
+          {lightboxItem?.type?.startsWith("video/") ? (
+            <video src={lightboxItem.url || lightboxItem.preview} controls autoPlay preload="metadata" />
+          ) : (
+            <img src={lightboxItem?.url || lightboxItem?.preview} alt={lightboxItem?.name || "Attachment"} />
+          )}
+          {lightboxItem?.name ? <p className="lightbox__caption">{lightboxItem.name}</p> : null}
+        </div>
+      </div>
     </>
   );
 }
