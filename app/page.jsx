@@ -342,95 +342,130 @@ export default function HomePage() {
         </section>
 
         <section id="tributes" className="card reveal">
-          <div className="card__content">
-            <h2>Share a Tribute</h2>
-            <p>Leave a note, memory, or prayer for Michele’s loved ones to read on this page.</p>
-            <form id="memory-form" onSubmit={handleTributeSubmit}>
-              <div className="form-group">
-                <label htmlFor="memory-name">Your Name</label>
-                <input type="text" id="memory-name" name="name" value={memoryForm.name} onChange={handleTributeChange} required />
+          <div className="card__content tribute-form">
+            <p className="tribute-form__eyebrow">Tribute Wall</p>
+            <div className="tribute-form__header">
+              <div>
+                <h2>Share a Tribute</h2>
+                <p className="tribute-form__lead">
+                  Write a note, prayer, or memory to honor Michele. Add photos or video if you like; everything shared appears on the wall below.
+                </p>
               </div>
-              <div className="form-group">
-                <label htmlFor="memory-message">Message</label>
-                <textarea
-                  id="memory-message"
-                  name="message"
-                  rows={3}
-                  value={memoryForm.message}
-                  onChange={handleTributeChange}
-                />
+              <div className="tribute-form__stats">
+                <span className="pill">
+                  Tributes posted <strong>{tributes.length}</strong>
+                </span>
+                <span className="pill pill--ghost">
+                  Media selected <strong>{tributeFiles.length}</strong>
+                </span>
               </div>
-              <div className="form-group form-group--file">
-                <label htmlFor="tribute-attachments">Photos or videos (optional)</label>
-                <div className="file-upload">
-                  <input
-                    type="file"
-                    id="tribute-attachments"
-                    name="attachments"
-                    accept="image/*,video/*"
-                    multiple
-                    onChange={handleTributeFilesChange}
-                    ref={tributeFileInputRef}
-                    className="file-upload__input"
-                  />
-                  <button type="button" className="button file-upload__button" onClick={() => tributeFileInputRef.current?.click()}>
-                    Choose files
-                  </button>
-                  <span className="file-upload__info">
-                    {tributeFiles.length ? `${tributeFiles.length} selected` : "JPG/PNG/MP4, up to 15MB each."}
-                  </span>
-                </div>
-                {tributeFiles.length ? (
-                  <div className="attachment-previews">
-                    {tributeFiles.map((item, index) => (
-                      <div className="attachment-previews__item" key={`${item.preview}-${index}`}>
-                        {item.type.startsWith("video/") ? (
-                          <video src={item.preview} controls preload="metadata" />
-                        ) : (
-                          <img src={item.preview} alt={item.name} />
-                        )}
-                        <p className="muted attachment-previews__caption">{item.name}</p>
-                      </div>
-                    ))}
+            </div>
+
+            <form id="memory-form" onSubmit={handleTributeSubmit} className="tribute-form__body">
+              <div className="input-card">
+                <div className="form-row form-row--stacked">
+                  <div className="form-group">
+                    <label htmlFor="memory-name">Your Name</label>
+                    <input type="text" id="memory-name" name="name" value={memoryForm.name} onChange={handleTributeChange} required />
                   </div>
-                ) : null}
-              </div>
-              <button type="submit" className="button button--secondary">
-                Add Memory
-              </button>
-            </form>
-          </div>
-          <div className="tributes" id="tributes-list">
-            {tributes.length ? (
-              tributes.map((tribute, index) => (
-                <article className="tribute" key={`${tribute.name}-${index}`}>
-                  <h3>{tribute.name || "Anonymous"}</h3>
-                  <p className="tribute__date">{tribute.createdAt ? formatDate(tribute.createdAt) : ""}</p>
-                  {tribute.message ? <p className="tribute__message">{tribute.message}</p> : null}
-                  {tribute.attachments?.length ? (
-                    <div className="record__attachments">
-                      <p className="muted">Shared media:</p>
-                      <div className="record__attachment-list">
-                        {tribute.attachments.map((file, fileIndex) => (
-                          <div className="record__attachment" key={`${file.url}-${fileIndex}`}>
-                            {file.type?.startsWith("image/") ? (
-                              <img src={file.url} alt={file.name || `Attachment ${fileIndex + 1}`} />
-                            ) : file.type?.startsWith("video/") ? (
-                              <video src={file.url} controls preload="metadata" />
-                            ) : null}
-                            <a href={file.url} target="_blank" rel="noreferrer" className="record__attachment-link">
-                              {file.name || `File ${fileIndex + 1}`}
-                            </a>
+                  <div className="form-group">
+                    <label htmlFor="memory-message">Message</label>
+                    <textarea
+                      id="memory-message"
+                      name="message"
+                      rows={4}
+                      placeholder="Share a memory, prayer, or encouragement..."
+                      value={memoryForm.message}
+                      onChange={handleTributeChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row form-row--stacked">
+                  <div className="form-group form-group--file">
+                    <div className="file-upload file-upload--card">
+                      <div className="file-upload__header">
+                        <div>
+                          <label htmlFor="tribute-attachments">Photos or videos (optional)</label>
+                          <p className="muted small-text">Images and MP4s up to 15MB each.</p>
+                        </div>
+                        <button type="button" className="button file-upload__button" onClick={() => tributeFileInputRef.current?.click()}>
+                          Choose files
+                        </button>
+                      </div>
+                      <input
+                        type="file"
+                        id="tribute-attachments"
+                        name="attachments"
+                        accept="image/*,video/*"
+                        multiple
+                        onChange={handleTributeFilesChange}
+                        ref={tributeFileInputRef}
+                        className="file-upload__input"
+                      />
+                      <span className="file-upload__info">
+                        {tributeFiles.length ? `${tributeFiles.length} selected` : "No media selected yet."}
+                      </span>
+                    </div>
+                    {tributeFiles.length ? (
+                      <div className="attachment-previews">
+                        {tributeFiles.map((item, index) => (
+                          <div className="attachment-previews__item" key={`${item.preview}-${index}`}>
+                            {item.type.startsWith("video/") ? (
+                              <video src={item.preview} controls preload="metadata" />
+                            ) : (
+                              <img src={item.preview} alt={item.name} />
+                            )}
                           </div>
                         ))}
                       </div>
-                    </div>
-                  ) : null}
-                </article>
-              ))
-            ) : (
-              <p className="tributes__empty">No tributes have been shared yet. Please add a memory above.</p>
-            )}
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="tribute-form__actions">
+                  <div className="muted">You can submit text alone; media is optional.</div>
+                  <button type="submit" className="button button--secondary">
+                    Add Memory
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <div className="tribute-list">
+              <h3>Tributes from loved ones</h3>
+              <div className="tributes" id="tributes-list">
+                {tributes.length ? (
+                  tributes.map((tribute, index) => (
+                    <article className="tribute" key={`${tribute.name}-${index}`}>
+                      <div className="tribute__content">
+                        <h3>{tribute.name || "Anonymous"}</h3>
+                        <p className="tribute__date">{tribute.createdAt ? formatDate(tribute.createdAt) : ""}</p>
+                        {tribute.message ? <p className="tribute__message">{tribute.message}</p> : null}
+                      </div>
+                      {tribute.attachments?.length ? (
+                        <div className="tribute__media record__attachments">
+                          <p className="muted">Shared media:</p>
+                          <div className="record__attachment-list">
+                            {tribute.attachments.map((file, fileIndex) => (
+                              <div className="record__attachment" key={`${file.url}-${fileIndex}`}>
+                                {file.type?.startsWith("image/") ? (
+                                  <img src={file.url} alt={file.name || `Attachment ${fileIndex + 1}`} />
+                                ) : file.type?.startsWith("video/") ? (
+                                  <video src={file.url} controls preload="metadata" />
+                                ) : null}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </article>
+                  ))
+                ) : (
+                  <p className="tributes__empty">No tributes have been shared yet. Please add a memory above.</p>
+                )}
+              </div>
+            </div>
           </div>
         </section>
       </main>

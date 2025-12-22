@@ -136,9 +136,6 @@ export default function DashboardPage() {
                             ) : file.type?.startsWith("video/") ? (
                               <video src={file.url} controls preload="metadata" />
                             ) : null}
-                            <a href={file.url} target="_blank" rel="noreferrer" className="record__attachment-link">
-                              {file.name || `File ${index + 1}`}
-                            </a>
                           </div>
                         ))}
                       </div>
