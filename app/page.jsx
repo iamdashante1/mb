@@ -14,6 +14,9 @@ const SERVICE_DETAILS = {
   ],
 };
 
+const BURIAL_DETAILS =
+  "Family interment will follow immediately at Riviera Beach Memorial Park; guests who wish to attend may follow the caravan.";
+
 const RSVP_DETAILS = [
   { label: "Name of the Deceased", value: "Michele Bailey" },
   { label: "Type of Service", value: "Celebration of life worship service with tributes, praise, and thanksgiving." },
@@ -33,7 +36,7 @@ const RSVP_DETAILS = [
   },
   {
     label: "Burial Details",
-    value: "Family interment will follow immediately at Riviera Beach Memorial Park; guests who wish to attend may follow the caravan.",
+    value: BURIAL_DETAILS,
   },
   {
     label: "Reception / Repast",
@@ -290,6 +293,9 @@ export default function HomePage() {
             </p>
             <p>
               <strong>Time:</strong> {SERVICE_DETAILS.time}
+            </p>
+            <p>
+              <strong>Burial:</strong> {BURIAL_DETAILS}
             </p>
             <p>
               <strong>Location:</strong>
