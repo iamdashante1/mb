@@ -15,7 +15,7 @@ const SERVICE_DETAILS = {
 };
 
 const BURIAL_DETAILS =
-  "Family interment will follow immediately at Riviera Beach Memorial Park; guests who wish to attend may follow the caravan.";
+  "Interment will follow at Royal Palm Funeral Home & Memorial Garden, 5601 Greenwood Ave, West Palm Beach, FL 33407.";
 
 const RSVP_DETAILS = [
   { label: "Name of the Deceased", value: "Michele Bailey" },
