@@ -69,8 +69,7 @@ const RSVP_DETAILS = [
     value: (
       <>
         Livestream available at{" "}
-        <a href="https://watch.baileyfamily.com" target="_blank" rel="noreferrer">
-          watch.baileyfamily.com
+        <a href="https://www.youtube.com/@bishopmasters7" target="_blank" rel="noreferrer">https://www.youtube.com/@bishopmasters7
         </a>{" "}
         with access code MICHELELOVE (stream opens at 12:45 PM).
       </>
